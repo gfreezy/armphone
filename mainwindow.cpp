@@ -1,6 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "audiodevice.h"
+#include "udpsocket.h"
+#include "netplaythread.h"
+#include "netrecthread.h"
 #include <QDataStream>
 #include <QMessageBox>
 
@@ -95,12 +98,38 @@ void MainWindow::on_btn_disconnect_clicked()
 
 void MainWindow::start_talking()
 {
+    aud = new AudioDevice();
+    if(-1 == aud->open_device())
+        return;
+    if(-1 == aud->init())
+    {
+        aud->close_device();
+        return;
+    }
 
+    talking_socket = new UdpSocket();
+
+    talking_socket->bind_(1500);
+    talking_socket->connect_(remote_ip.toStdString().c_str(), 1500);
+
+    netrec_thread = new NetRecThread(aud, talking_socket);
+    netplay_thread = new NetPlayThread(aud, talking_socket);
+
+    netrec_thread->start();
+    netplay_thread->start();
 }
 
 void MainWindow::stop_talking()
 {
+    netrec_thread->stop_record();
+    netplay_thread->stop_play();
 
+    talking_socket->close_();
+    aud->close_device();
+    delete aud;
+    delete talking_socket;
+    delete netplay_thread;
+    delete netrec_thread;
 }
 
 void MainWindow::display_socket_error(QAbstractSocket::SocketError socketError)

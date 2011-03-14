@@ -8,6 +8,10 @@ namespace Ui {
     class MainWindow;
 }
 
+class AudioDevice;
+class UdpSocket;
+class NetPlayThread;
+class NetRecThread;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -24,6 +28,10 @@ private:
     QString remote_ip;
     QString remote_port;
     bool is_connected;
+    AudioDevice* aud;
+    UdpSocket* talking_socket;
+    NetRecThread* netrec_thread;
+    NetPlayThread* netplay_thread;
 
 private slots:
     void on_btn_disconnect_clicked();
