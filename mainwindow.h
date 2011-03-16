@@ -27,13 +27,13 @@ private:
     Ui::MainWindow *ui;
     QTcpSocket* tcp_socket;
     QString remote_ip;
-    QString remote_port;
     bool is_connected;
     AudioDevice* aud;
     UdpSocket* talking_socket;
     NetRecThread* netrec_thread;
     NetPlayThread* netplay_thread;
     QTcpServer* tcp_server;
+    const int listen_port;
 
 private slots:
     void on_btn_disconnect_clicked();

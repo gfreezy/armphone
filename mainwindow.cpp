@@ -10,16 +10,15 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    listen_port(1600)
 {
     ui->setupUi(this);
     remote_ip = "";
-    remote_port = "1600";
     ui->status->setVisible(false);
     is_connected = false;
-
     tcp_server = new QTcpServer();
-    tcp_server->listen(QHostAddress::Any, remote_port.toInt());
+    tcp_server->listen(QHostAddress::Any, listen_port);
     connect(tcp_server, SIGNAL(newConnection()), this, SLOT(new_connection()));
 }
 
@@ -49,7 +48,6 @@ void MainWindow::ready_to_read()
         ui->btn_disconnect->setEnabled(false);
         ui->status->setVisible(false);
         ui->remote_ip->setEnabled(true);
-        ui->remote_port->setEnabled(true);
         is_connected = false;
     }
     else if(recv_data == "dial request")
@@ -82,11 +80,9 @@ void MainWindow::on_btn_dial_clicked()
     ui->btn_dial->setEnabled(false);
     ui->btn_disconnect->setEnabled(true);
     ui->remote_ip->setEnabled(false);
-    ui->remote_port->setEnabled(false);
     remote_ip = ui->remote_ip->text();
-    remote_port = ui->remote_port->text();
     tcp_socket->abort();
-    tcp_socket->connectToHost(remote_ip, remote_port.toInt());
+    tcp_socket->connectToHost(remote_ip, listen_port);
     if(tcp_socket->waitForConnected())
     {
         QDataStream out(tcp_socket);
@@ -114,7 +110,6 @@ void MainWindow::on_btn_disconnect_clicked()
     ui->btn_disconnect->setEnabled(false);
     ui->status->setVisible(false);
     ui->remote_ip->setEnabled(true);
-    ui->remote_port->setEnabled(true);
 }
 
 void MainWindow::start_talking()
