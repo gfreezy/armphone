@@ -6,6 +6,7 @@
 #include "netrecthread.h"
 #include <QDataStream>
 #include <QMessageBox>
+#include <QTcpServer>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -13,33 +14,35 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     remote_ip = "";
-    remote_port = "1500";
-    tcp_socket = new QTcpSocket();
+    remote_port = "1600";
     ui->status->setVisible(false);
-    connect(tcp_socket, SIGNAL(readyRead()), this, SLOT(ready_to_read()));
-    connect(tcp_socket, SIGNAL(error(QAbstractSocket::SocketError)),
-            this, SLOT(display_socket_error(QAbstractSocket::SocketError)));
     is_connected = false;
+
+    tcp_server = new QTcpServer();
+    tcp_server->listen(QHostAddress::Any, remote_port.toInt());
+    connect(tcp_server, SIGNAL(newConnection()), this, SLOT(new_connection()));
 }
 
 MainWindow::~MainWindow()
 {
+    delete tcp_server;
+    delete tcp_socket;
     delete ui;
 }
 
 void MainWindow::ready_to_read()
 {
     QDataStream in(tcp_socket);
-    QString reply;
-    in >> reply;
-    if(reply == "accept")
+    QString recv_data;
+    in >> recv_data;
+    if(recv_data == "accept")
     {
         start_talking();
         ui->btn_disconnect->setEnabled(true);
         ui->status->setText("Talking ...");
         is_connected = true;
     }
-    else if(reply == "stop")
+    else if(recv_data == "stop")
     {
         stop_talking();
         ui->btn_dial->setEnabled(true);
@@ -49,15 +52,33 @@ void MainWindow::ready_to_read()
         ui->remote_port->setEnabled(true);
         is_connected = false;
     }
-    else
+    else if(recv_data == "dial request")
     {
-        return;
+        int res = QMessageBox::question(this, tr("Accept?"), tr("Accept the dial request"),
+                              QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+        if(res == QMessageBox::Yes)
+        {
+            in << "accpet";
+
+        }
+        else if(res == QMessageBox::No)
+        {
+            in << "reject";
+        }
+    }
+    else if(recv_data == "stop")
+    {
+        on_btn_disconnect_clicked();
     }
 
 }
 
 void MainWindow::on_btn_dial_clicked()
 {
+    tcp_socket = new QTcpSocket();
+    connect(tcp_socket, SIGNAL(readyRead()), this, SLOT(ready_to_read()));
+    connect(tcp_socket, SIGNAL(error(QAbstractSocket::SocketError)),
+            this, SLOT(display_socket_error(QAbstractSocket::SocketError)));
     ui->btn_dial->setEnabled(false);
     ui->btn_disconnect->setEnabled(true);
     ui->remote_ip->setEnabled(false);
@@ -159,7 +180,13 @@ void MainWindow::display_socket_error(QAbstractSocket::SocketError socketError)
     }
 }
 
-
+void MainWindow::new_connection()
+{
+    tcp_socket = tcp_server->nextPendingConnection();
+    connect(tcp_socket, SIGNAL(readyRead()), this, SLOT(ready_to_read()));
+    connect(tcp_socket, SIGNAL(error(QAbstractSocket::SocketError)),
+            this, SLOT(display_socket_error(QAbstractSocket::SocketError)));
+}
 
 
 

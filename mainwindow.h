@@ -12,6 +12,7 @@ class AudioDevice;
 class UdpSocket;
 class NetPlayThread;
 class NetRecThread;
+class QTcpServer;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -32,12 +33,14 @@ private:
     UdpSocket* talking_socket;
     NetRecThread* netrec_thread;
     NetPlayThread* netplay_thread;
+    QTcpServer* tcp_server;
 
 private slots:
     void on_btn_disconnect_clicked();
     void on_btn_dial_clicked();
     void ready_to_read();
     void display_socket_error(QAbstractSocket::SocketError);
+    void new_connection();
 };
 
 #endif // MAINWINDOW_H
