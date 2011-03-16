@@ -16,39 +16,31 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     remote_ip = "";
     ui->status->setVisible(false);
-    is_connected = false;
-    tcp_server = new QTcpServer();
+    started_talking = false;
+    tcp_server = new QTcpServer(this);
     tcp_server->listen(QHostAddress::Any, listen_port);
     connect(tcp_server, SIGNAL(newConnection()), this, SLOT(new_connection()));
 }
 
 MainWindow::~MainWindow()
 {
-    delete tcp_server;
-    delete tcp_socket;
     delete ui;
 }
 
 void MainWindow::ready_to_read()
 {
     QDataStream in(tcp_socket);
-    QString recv_data;
-    in >> recv_data;
+    char* data;
+    in >> data;
+    QString recv_data(data);
+//    QMessageBox::information(this, tr("new signal"),
+//                              tr("received signal:\n %1").arg(recv_data));
     if(recv_data == "accept")
     {
+//        QMessageBox::information(this, tr("accept"), tr("accept"));
         start_talking();
         ui->btn_disconnect->setEnabled(true);
         ui->status->setText("Talking ...");
-        is_connected = true;
-    }
-    else if(recv_data == "stop")
-    {
-        stop_talking();
-        ui->btn_dial->setEnabled(true);
-        ui->btn_disconnect->setEnabled(false);
-        ui->status->setVisible(false);
-        ui->remote_ip->setEnabled(true);
-        is_connected = false;
     }
     else if(recv_data == "dial request")
     {
@@ -56,12 +48,20 @@ void MainWindow::ready_to_read()
                               QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
         if(res == QMessageBox::Yes)
         {
-            in << "accpet";
+            in << "accept";
+            remote_ip = tcp_socket->peerAddress().toString();
+            start_talking();
+            ui->btn_dial->setEnabled(false);
+            ui->btn_disconnect->setEnabled(true);
+            ui->remote_ip->setText(remote_ip);
+            ui->remote_ip->setEnabled(false);
+            ui->status->setText("Talking ...");
 
         }
         else if(res == QMessageBox::No)
         {
             in << "reject";
+            QMessageBox::information(this, tr("Decline"), tr("Your request is declined"));
         }
     }
     else if(recv_data == "stop")
@@ -81,7 +81,6 @@ void MainWindow::on_btn_dial_clicked()
     ui->btn_disconnect->setEnabled(true);
     ui->remote_ip->setEnabled(false);
     remote_ip = ui->remote_ip->text();
-    tcp_socket->abort();
     tcp_socket->connectToHost(remote_ip, listen_port);
     if(tcp_socket->waitForConnected())
     {
@@ -89,6 +88,8 @@ void MainWindow::on_btn_dial_clicked()
         out << "dial request";
         ui->status->setText("Waitting For Reply");
         ui->status->setVisible(true);
+//        QMessageBox::information(this, tr("connection"),
+//                                 tr("connected to server"));
     }
     else
     {
@@ -99,22 +100,27 @@ void MainWindow::on_btn_dial_clicked()
 
 void MainWindow::on_btn_disconnect_clicked()
 {
-    if(is_connected)
+    if(started_talking)
     {
         QDataStream out(tcp_socket);
         out << "stop";
         stop_talking();
     }
-    tcp_socket->abort();
+    tcp_socket->close();
+    delete tcp_socket;
     ui->btn_dial->setEnabled(true);
     ui->btn_disconnect->setEnabled(false);
     ui->status->setVisible(false);
+
+    remote_ip = "";
+    ui->remote_ip->setText(remote_ip);
     ui->remote_ip->setEnabled(true);
 }
 
 void MainWindow::start_talking()
 {
-    aud = new AudioDevice();
+    started_talking = true;
+    aud = new AudioDevice("/dev/dsp");
     if(-1 == aud->open_device())
         return;
     if(-1 == aud->init())
@@ -122,14 +128,16 @@ void MainWindow::start_talking()
         aud->close_device();
         return;
     }
+//    QMessageBox::information(this, tr("open device"), tr("open device"));
 
     talking_socket = new UdpSocket();
 
     talking_socket->bind_(1500);
     talking_socket->connect_(remote_ip.toStdString().c_str(), 1500);
 
-    netrec_thread = new NetRecThread(aud, talking_socket);
     netplay_thread = new NetPlayThread(aud, talking_socket);
+    netrec_thread = new NetRecThread(aud, talking_socket);
+
 
     netrec_thread->start();
     netplay_thread->start();
@@ -137,8 +145,11 @@ void MainWindow::start_talking()
 
 void MainWindow::stop_talking()
 {
+    started_talking = false;
     netrec_thread->stop_record();
     netplay_thread->stop_play();
+    netrec_thread->wait();
+    netplay_thread->wait();
 
     talking_socket->close_();
     aud->close_device();
@@ -146,6 +157,7 @@ void MainWindow::stop_talking()
     delete talking_socket;
     delete netplay_thread;
     delete netrec_thread;
+
 }
 
 void MainWindow::display_socket_error(QAbstractSocket::SocketError socketError)
@@ -157,7 +169,7 @@ void MainWindow::display_socket_error(QAbstractSocket::SocketError socketError)
         QMessageBox::information(this, tr("Arm Phone"),
                                  tr("The host was not found. Please check the "
                                     "host name and port settings."));
-        on_btn_disconnect_clicked();
+//        on_btn_disconnect_clicked();
         break;
     case QAbstractSocket::ConnectionRefusedError:
         QMessageBox::information(this, tr("Arm Phone"),
@@ -165,13 +177,13 @@ void MainWindow::display_socket_error(QAbstractSocket::SocketError socketError)
                                     "Make sure the server is running, "
                                     "and check that the host name and port "
                                     "settings are correct."));
-        on_btn_disconnect_clicked();
+//        on_btn_disconnect_clicked();
         break;
     default:
         QMessageBox::information(this, tr("Arm Phone"),
                                  tr("The following error occurred: %1.")
                                  .arg(tcp_socket->errorString()));
-        on_btn_disconnect_clicked();
+//        on_btn_disconnect_clicked();
     }
 }
 
@@ -181,6 +193,8 @@ void MainWindow::new_connection()
     connect(tcp_socket, SIGNAL(readyRead()), this, SLOT(ready_to_read()));
     connect(tcp_socket, SIGNAL(error(QAbstractSocket::SocketError)),
             this, SLOT(display_socket_error(QAbstractSocket::SocketError)));
+//    QMessageBox::information(this, tr("new connection"),
+//                             tr("accept new connection"));
 }
 
 

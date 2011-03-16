@@ -59,24 +59,28 @@ int AudioDevice::init(void)
         perror("setting fragments");
         return -1;
     }
+    fprintf(stderr,"set frag\n");
 
     if(-1 == ioctl(fd, SNDCTL_DSP_SETFMT, &sample_size))
     {
         perror("setting sample size");
         return -1;
     }
+    fprintf(stderr,"set sample\n");
 
     if(-1 == ioctl(fd, SNDCTL_DSP_CHANNELS, &channels))
     {
         perror("setting channels");
         return -1;
     }
+    fprintf(stderr, "set channels\n");
 
     if(-1 == ioctl(fd, SNDCTL_DSP_SPEED, &sample_rate))
     {
         perror("setting sample rate");
         return -1;
     }
+    fprintf(stderr, "set rate\n");
 
 
 
@@ -86,7 +90,7 @@ int AudioDevice::init(void)
         perror("getospace");
         return -1;
     }
-    printf("bytes %d,fragments %d,fragsize %d, fragstotal %d\n",
+    fprintf(stderr,"bytes %d,fragments %d,fragsize %d, fragstotal %d\n",
             bi.bytes, bi.fragments, bi.fragsize, bi.fragstotal);
     return 0;
 
@@ -99,6 +103,7 @@ int AudioDevice::open_device(void)
         perror("open /dev/dsp");
         return -1;
     }
+    fprintf(stderr,"open device success\n");
     return fd;
 }
 

@@ -27,7 +27,7 @@ private:
     Ui::MainWindow *ui;
     QTcpSocket* tcp_socket;
     QString remote_ip;
-    bool is_connected;
+    bool started_talking;
     AudioDevice* aud;
     UdpSocket* talking_socket;
     NetRecThread* netrec_thread;
