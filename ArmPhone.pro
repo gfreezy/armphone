@@ -27,4 +27,4 @@ INCLUDEPATH += gsm/inc
 
 FORMS    += mainwindow.ui
 
-LIBS += -L gsm/lib -lgsm
+LIBS += -L/src/armphone/gsm/lib -lgsm
