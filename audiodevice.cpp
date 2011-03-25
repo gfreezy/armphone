@@ -12,7 +12,7 @@
 
 AudioDevice::AudioDevice(char* dev)
 {
-    this->dev = strdup(dev);
+    this->dev = dev;
     this->channels = 2;
     this->sample_rate = 8000;
     this->sample_size = AFMT_S16_LE;
