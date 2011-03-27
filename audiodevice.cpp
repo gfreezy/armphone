@@ -22,7 +22,6 @@ AudioDevice::AudioDevice(char* dev)
 
 AudioDevice::~AudioDevice(void)
 {
-    free(dev);
 }
 
 void AudioDevice::set_channels(int channels)
