@@ -23,8 +23,8 @@ HEADERS  += mainwindow.h \
     udpsocket.h \
     netplaythread.h
 
-INCLUDEPATH += gsm/inc
+#INCLUDEPATH += gsm/inc
 
 FORMS    += mainwindow.ui
 
-LIBS += -L/src/armphone/gsm/lib -lgsm
+#LIBS += -L/src/armphone/gsm/lib -lgsm

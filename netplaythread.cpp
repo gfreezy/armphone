@@ -3,10 +3,10 @@
 #include "udpsocket.h"
 #include "sys/poll.h"
 #define RECEIVE_TIMEOUT 100
-extern "C"
-{
-    #include "gsm.h"
-}
+//extern "C"
+//{
+//    #include "gsm.h"
+//}
 
 NetPlayThread::NetPlayThread(AudioDevice *dev, UdpSocket *s, QObject *parent) :
     QThread(parent)
@@ -20,16 +20,17 @@ NetPlayThread::NetPlayThread(AudioDevice *dev, UdpSocket *s, QObject *parent) :
 void NetPlayThread::run()
 {
     int res;
-    gsm g;
+    //gsm g;
 
-    g = gsm_create();
+//    g = gsm_create();
 
     while (!is_stop)
     {
-        //fprintf(stderr,"is_stop");
-        int i;
-        unsigned char packet[65536];
-        int numframes;
+//        fprintf(stderr,"is_stop");
+//        int i;
+//        unsigned char packet[65536];
+//        int numframes;
+        short buf[256];
         struct pollfd pfd;
 
         pfd.fd = socket->get_socket_fd();
@@ -47,21 +48,21 @@ void NetPlayThread::run()
         }
         else
         {
-            res = socket->read_(packet, sizeof(packet));
-            numframes = res /33;
+            res = socket->read_(buf, sizeof(buf));
+//            numframes = res /33;
 
-            for(i = 0; i < numframes; i++)
-            {
-                short buf[160];
+//            for(i = 0; i < numframes; i++)
+//            {
+//                short buf[160];
 
-                res = gsm_decode(g, packet + 33 * i, buf);
-                if(res != 0)
-                    perror("Error decoding gsm data\n");
+                //res = gsm_decode(g, packet + 33 * i, buf);
+                //if(res != 0)
+//                    perror("Error decoding gsm data\n");
 
-                res = aud_dev->write_data(buf, sizeof(buf));
-                if(res == -1)
-                    perror("Netplay: writing error");
-            }
+            res = aud_dev->write_data(buf, sizeof(buf));
+            if(res == -1)
+                perror("Netplay: writing error");
+//            }
         }
     }
 
