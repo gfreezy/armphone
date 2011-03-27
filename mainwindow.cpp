@@ -106,7 +106,9 @@ void MainWindow::on_btn_disconnect_clicked()
         out << "stop";
         stop_talking();
     }
-    tcp_socket->close();
+    tcp_socket->disconnectFromHost();
+    if(tcp_socket->waitForDisconnected())
+        tcp_socket->close();
     delete tcp_socket;
     ui->btn_dial->setEnabled(true);
     ui->btn_disconnect->setEnabled(false);
