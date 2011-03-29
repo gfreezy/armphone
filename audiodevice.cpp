@@ -168,7 +168,7 @@ int AudioDevice::write_data(const short* buf, size_t size)
             printf("play overrun\n"); // play speed too slow, so plz write slowly
 
     res = write(fd, dblbuf, s);
-    printf ("write %d bytes\n", res);
+//    printf ("write %d bytes\n", res);
     if (res == -1)
     {
         perror("auddev: writing audio device error");
