@@ -13,14 +13,12 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     audiodevice.cpp \
-    myrtpsession.cpp \
     datasocket.cpp \
     audiodatasocket.cpp \
     audiodatasocketthread.cpp
 
 HEADERS  += mainwindow.h \
     audiodevice.h \
-    myrtpsession.h \
     datasocket.h \
     audiodatasocket.h \
     audiodatasocketthread.h
