@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QTcpSocket>
+#include "audiodatasocketthread.h"
 
 namespace Ui {
     class MainWindow;
@@ -22,18 +23,13 @@ public:
     ~MainWindow();
 
 private:
-    void start_talking();
-    void stop_talking();
     Ui::MainWindow *ui;
     QTcpSocket* tcp_socket;
-    QString remote_ip;
+    QHostAddress remote_ip;
     bool started_talking;
-    AudioDevice* aud;
-    UdpSocket* talking_socket;
-    NetRecThread* netrec_thread;
-    NetPlayThread* netplay_thread;
     QTcpServer* tcp_server;
     const int listen_port;
+    AudioDataSocketThread* audthread;
 
 private slots:
     void on_btn_disconnect_clicked();

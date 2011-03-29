@@ -8,7 +8,7 @@ public:
     AudioDevice(char* dev = "/dev/dsp");
     ~AudioDevice(void);
     int open_device(void);
-    int init(void);
+    int init_device(void);
     void close_device(void);
     void set_sample_rate(int);
     void set_sample_size(int);

@@ -45,7 +45,7 @@ void AudioDevice::set_fragments(int size, int num)
     this->fragsize = size;
 }
 
-int AudioDevice::init(void)
+int AudioDevice::init_device(void)
 {
     int buffarg;
     int frag = 0;

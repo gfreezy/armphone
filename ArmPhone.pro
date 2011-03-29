@@ -13,17 +13,17 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     audiodevice.cpp \
-    netrecthread.cpp \
-    udpsocket.cpp \
-    netplaythread.cpp \
-    myrtpsession.cpp
+    myrtpsession.cpp \
+    datasocket.cpp \
+    audiodatasocket.cpp \
+    audiodatasocketthread.cpp
 
 HEADERS  += mainwindow.h \
     audiodevice.h \
-    netrecthread.h \
-    udpsocket.h \
-    netplaythread.h \
-    myrtpsession.h
+    myrtpsession.h \
+    datasocket.h \
+    audiodatasocket.h \
+    audiodatasocketthread.h
 
 #INCLUDEPATH += gsm/inc
 
