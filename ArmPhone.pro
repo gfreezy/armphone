@@ -15,16 +15,18 @@ SOURCES += main.cpp\
     audiodevice.cpp \
     netrecthread.cpp \
     udpsocket.cpp \
-    netplaythread.cpp
+    netplaythread.cpp \
+    myrtpsession.cpp
 
 HEADERS  += mainwindow.h \
     audiodevice.h \
     netrecthread.h \
     udpsocket.h \
-    netplaythread.h
+    netplaythread.h \
+    myrtpsession.h
 
 #INCLUDEPATH += gsm/inc
 
 FORMS    += mainwindow.ui
 
-#LIBS += -L/src/armphone/gsm/lib -lgsm
+LIBS += -ljthread -ljrtp
