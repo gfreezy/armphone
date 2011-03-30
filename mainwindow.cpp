@@ -150,17 +150,3 @@ void MainWindow::new_connection()
 //    QMessageBox::information(this, tr("new connection"),
 //                             tr("accept new connection"));
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
