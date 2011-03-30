@@ -7,7 +7,7 @@ AudioDataSocket::AudioDataSocket(const QString &aud, QObject *parent)
 
     connect(this, SIGNAL(readyRead()), this, SLOT(ready_read()));
 
-    auddev = new AudioDevice();
+    auddev = new AudioDevice(aud);
     if((-1 == auddev->open_device()) || (-1 == auddev->init_device()))
     {
         exit(EXIT_FAILURE);

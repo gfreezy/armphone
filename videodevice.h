@@ -22,14 +22,14 @@ class VideoDevice : public QObject
 {
     Q_OBJECT
 public:
-    VideoDevice(QString dev_name="/dev/video");
+    VideoDevice(QString dev_name);
     int open_device();
     int close_device();
     int init_device();
     int start_capturing();
     int stop_capturing();
     int uninit_device();
-    int get_frame(void*, unsigned int*);
+    int get_frame(void*, size_t*);
     int unget_frame();
 
 private:

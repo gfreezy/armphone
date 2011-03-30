@@ -16,14 +16,18 @@ SOURCES += main.cpp\
     datasocket.cpp \
     audiodatasocket.cpp \
     audiodatasocketthread.cpp \
-    videodevice.cpp
+    videodevice.cpp \
+    videodatasocket.cpp \
+    videodatasocketthread.cpp
 
 HEADERS  += mainwindow.h \
     audiodevice.h \
     datasocket.h \
     audiodatasocket.h \
     audiodatasocketthread.h \
-    videodevice.h
+    videodevice.h \
+    videodatasocket.h \
+    videodatasocketthread.h
 
 #INCLUDEPATH += gsm/inc
 

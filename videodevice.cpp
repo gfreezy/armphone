@@ -234,7 +234,7 @@ int VideoDevice::uninit_device()
     return 0;
 }
 
-int VideoDevice::get_frame(void* frame_buf, unsigned int* len)
+int VideoDevice::get_frame(void* frame_buf, size_t* len)
 {
     CLEAR(queue_buf);
 

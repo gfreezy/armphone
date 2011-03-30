@@ -10,9 +10,9 @@
 
 #define FRAG(x, y) ((((x) & 0xFFFF) << 16) | ((y) & 0xFFFF))            //x fragnum, y fragsize
 
-AudioDevice::AudioDevice(char* dev)
+AudioDevice::AudioDevice(const QString &dev)
+    :dev(dev)
 {
-    this->dev = dev;
     this->channels = 2;
     this->sample_rate = 8000;
     this->sample_size = AFMT_S16_LE;
@@ -22,6 +22,7 @@ AudioDevice::AudioDevice(char* dev)
 
 AudioDevice::~AudioDevice(void)
 {
+
 }
 
 void AudioDevice::set_channels(int channels)
@@ -81,8 +82,6 @@ int AudioDevice::init_device(void)
     }
     fprintf(stderr, "set rate\n");
 
-
-
     audio_buf_info bi;
     if(-1 == ioctl(fd, SNDCTL_DSP_GETOSPACE, &bi))
     {
@@ -97,12 +96,13 @@ int AudioDevice::init_device(void)
 
 int AudioDevice::open_device(void)
 {
-    if(-1 == (fd = open(dev, O_RDWR, 0)))
+    if(-1 == (fd = open(dev.toStdString().c_str(), O_RDWR, 0)))
     {
         perror("open /dev/dsp");
         return -1;
     }
     fprintf(stderr,"open device success\n");
+
     return fd;
 }
 

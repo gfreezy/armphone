@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "audiodevice.h"
 #include <QDataStream>
 #include <QMessageBox>
 #include <QTcpServer>
@@ -40,6 +39,12 @@ void MainWindow::ready_to_read()
         audthread->connectToHost(remote_ip, 1500);
         audthread->start();
 
+        vidthread = new VideoDataSocketThread(QString("/dev/video"));
+        vidthread->setLocalPort(1501);
+        vidthread->connectToHost(remote_ip, 1501);
+        vidthread->setDisplayWidget();
+        vidthread->start();
+
         started_talking = true;
 
         ui->btn_disconnect->setEnabled(true);
@@ -59,6 +64,12 @@ void MainWindow::ready_to_read()
             audthread->setLocalPort(1500);
             audthread->connectToHost(remote_ip, 1500);
             audthread->start();
+
+            vidthread = new VideoDataSocketThread(QString("/dev/video"));
+            vidthread->setLocalPort(1501);
+            vidthread->connectToHost(remote_ip, 1501);
+            vidthread->setDisplayWidget();
+            vidthread->start();
 
             started_talking = true;
 
@@ -119,8 +130,13 @@ void MainWindow::on_btn_disconnect_clicked()
     {
         QDataStream out(tcp_socket);
         out << "stop";
+
         audthread->stop();
         delete audthread;
+
+        vidthread->stop();
+        delete vidthread;
+
         started_talking = false;
     }
 

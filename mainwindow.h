@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QTcpSocket>
 #include "audiodatasocketthread.h"
+#include "videodatasocketthread.h"
 
 namespace Ui {
     class MainWindow;
@@ -30,6 +31,7 @@ private:
     QTcpServer* tcp_server;
     const int listen_port;
     AudioDataSocketThread* audthread;
+    VideoDataSocketThread* vidthread;
 
 private slots:
     void on_btn_disconnect_clicked();
