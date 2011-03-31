@@ -2,9 +2,11 @@
 #define AUDIODEVICE_H
 #include <unistd.h>
 #include <QString>
+#include <QObject>
 
-class AudioDevice
+class AudioDevice : public QObject
 {
+    Q_OBJECT
 public:
     AudioDevice(const QString& dev);
     ~AudioDevice(void);
@@ -21,6 +23,9 @@ public:
 private:
     const QString dev;
     int fd, sample_rate, sample_size, channels, fragsize, fragnum;
+
+signals:
+    void display_error(QString err);
 };
 
 #endif // AUDIODEVICE_H

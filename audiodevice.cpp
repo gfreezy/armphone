@@ -56,28 +56,32 @@ int AudioDevice::init_device(void)
     frag = FRAG(fragnum, buffarg);
     if(-1 == ioctl(fd, SNDCTL_DSP_SETFRAGMENT, &frag))
     {
-        perror("setting fragments");
+        emit display_error(tr("SNDCTL_DSP_SETFRAGMENT: %1").arg(QString(strerror(errno))));
+//        perror("setting fragments");
         return -1;
     }
     fprintf(stderr,"set frag\n");
 
     if(-1 == ioctl(fd, SNDCTL_DSP_SETFMT, &sample_size))
     {
-        perror("setting sample size");
+        emit display_error(tr("SNDCTL_DSP_SETFMT: %1").arg(QString(strerror(errno))));
+//        perror("setting sample size");
         return -1;
     }
     fprintf(stderr,"set sample\n");
 
     if(-1 == ioctl(fd, SNDCTL_DSP_CHANNELS, &channels))
     {
-        perror("setting channels");
+        emit display_error(tr("SNDCTL_DSP_CHANNELS: %1").arg(QString(strerror(errno))));
+//        perror("setting channels");
         return -1;
     }
     fprintf(stderr, "set channels\n");
 
     if(-1 == ioctl(fd, SNDCTL_DSP_SPEED, &sample_rate))
     {
-        perror("setting sample rate");
+        emit display_error(tr("SNDCTRL_DSP_SPEED: %1").arg(QString(strerror(errno))));
+//        perror("setting sample rate");
         return -1;
     }
     fprintf(stderr, "set rate\n");
@@ -85,7 +89,8 @@ int AudioDevice::init_device(void)
     audio_buf_info bi;
     if(-1 == ioctl(fd, SNDCTL_DSP_GETOSPACE, &bi))
     {
-        perror("getospace");
+        emit display_error(tr("SNDCTL_DSP_GETOSPACE: %1").arg(QString(strerror(errno))));
+//        perror("getospace");
         return -1;
     }
     fprintf(stderr,"bytes %d,fragments %d,fragsize %d, fragstotal %d\n",
@@ -98,7 +103,8 @@ int AudioDevice::open_device(void)
 {
     if(-1 == (fd = open(dev.toStdString().c_str(), O_RDWR, 0)))
     {
-        perror("open /dev/dsp");
+        emit display_error(tr("open device: %1").arg(QString(strerror(errno))));
+//        perror("open /dev/dsp");
         return -1;
     }
     fprintf(stderr,"open device success\n");
@@ -119,14 +125,17 @@ int AudioDevice::read_data(short* buf, size_t size)
 
     if(-1 == read(fd, (void*)dblbuf, size * 2))
     {
-        perror("read data");
+        emit display_error(tr("read data: %1").arg(QString(strerror(errno))));
+//        perror("read data");
         return -1;
     }
 
     //balance between the two channels
     //the first element is from left channel,the follow is from right channel
     for (i = 0; i < size/sizeof(short); i++)
-            buf[i] = ((int)dblbuf[2*i] + (int)dblbuf[2*i+1])/2;
+    {
+        buf[i] = ((int)dblbuf[2*i] + (int)dblbuf[2*i+1])/2;
+    }
 
     return 0;
 }
@@ -151,7 +160,8 @@ int AudioDevice::write_data(const short* buf, size_t size)
     res = ioctl(fd, SNDCTL_DSP_GETOSPACE, &bi);
     if (res == -1)
     {
-            perror("SNDCTL_DSP_GETOSPACE");
+        emit display_error(tr("SNDCTRL_DSP_GETOSPACE: %1").arg(QString(strerror(errno))));
+//            perror("SNDCTL_DSP_GETOSPACE");
             return -1;
     }
 
@@ -171,7 +181,8 @@ int AudioDevice::write_data(const short* buf, size_t size)
 //    printf ("write %d bytes\n", res);
     if (res == -1)
     {
-        perror("auddev: writing audio device error");
+        emit display_error(tr("write data: %1").arg(QString(strerror(errno))));
+//        perror("auddev: writing audio device error");
         return -1;
     }
 
@@ -183,7 +194,8 @@ int AudioDevice::write_data(const short* buf, size_t size)
             res = write(fd, dblbuf, s);
             if(res == -1)
             {
-                perror("writing audio device error");
+                emit display_error(tr("write data: %1").arg(QString(strerror(errno))));
+//                perror("writing audio device error");
                 return -1;
             }
     }
