@@ -29,7 +29,7 @@ public:
     int start_capturing();
     int stop_capturing();
     int uninit_device();
-    int get_frame(void*, size_t*);
+    int get_frame(void **, size_t*);
     int unget_frame();
 
 private:
@@ -44,7 +44,7 @@ private:
     int fd;
     buffer* buffers;
     unsigned int n_buffers;
-    v4l2_buffer queue_buf;
+    int index;
 
 signals:
     void display_error(QString);

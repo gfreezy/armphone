@@ -54,7 +54,7 @@ void VideoDataSocket::sendData()
 
     forever
     {
-        if(-1 == viddev->get_frame(frame, &frame_len))
+        if(-1 == viddev->get_frame((void**)&frame, &frame_len))
         {
             exit(EXIT_FAILURE);
         }

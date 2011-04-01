@@ -6,12 +6,13 @@ VideoDevice::VideoDevice(QString dev_name)
     this->fd = -1;
     this->buffers = NULL;
     this->n_buffers = 0;
+    this->index = -1;
 
 }
 
 int VideoDevice::open_device()
 {
-    fd = open(dev_name.toStdString().c_str(), O_RDWR|O_NONBLOCK, 0);
+    fd = open(dev_name.toStdString().c_str(), O_RDWR/*|O_NONBLOCK*/, 0);
 
     if(-1 == fd)
     {
@@ -69,17 +70,27 @@ int VideoDevice::init_device()
 
     if(0 == ioctl(fd, VIDIOC_CROPCAP, &cropcap))
     {
+        CLEAR(crop);
         crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         crop.c = cropcap.defrect;
 
         if(-1 == ioctl(fd, VIDIOC_S_CROP, &crop))
         {
-            emit display_error(tr("VIDIOC_S_CROP: %1").arg(QString(strerror(errno))));
+            if(EINVAL == errno)
+            {
+                emit display_error(tr("VIDIOC_S_CROP not supported"));
+            }
+            else
+            {
+                emit display_error(tr("VIDIOC_S_CROP: %1").arg(QString(strerror(errno))));
+                return -1;
+            }
         }
     }
     else
     {
         emit display_error(tr("VIDIOC_CROPCAP: %1").arg(QString(strerror(errno))));
+        return -1;
     }
 
     CLEAR(fmt);
@@ -177,8 +188,6 @@ int VideoDevice::init_mmap()
 int VideoDevice::start_capturing()
 {
     unsigned int i;
-    v4l2_buf_type type;
-
     for(i = 0; i < n_buffers; ++i)
     {
         v4l2_buffer buf;
@@ -187,6 +196,7 @@ int VideoDevice::start_capturing()
         buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         buf.memory =V4L2_MEMORY_MMAP;
         buf.index = i;
+//        fprintf(stderr, "n_buffers: %d\n", i);
 
         if(-1 == ioctl(fd, VIDIOC_QBUF, &buf))
         {
@@ -194,6 +204,8 @@ int VideoDevice::start_capturing()
             return -1;
         }
     }
+
+    v4l2_buf_type type;
     type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
     if(-1 == ioctl(fd, VIDIOC_STREAMON, &type))
@@ -207,7 +219,6 @@ int VideoDevice::start_capturing()
 int VideoDevice::stop_capturing()
 {
     v4l2_buf_type type;
-
     type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
     if(-1 == ioctl(fd, VIDIOC_STREAMOFF, &type))
@@ -234,8 +245,9 @@ int VideoDevice::uninit_device()
     return 0;
 }
 
-int VideoDevice::get_frame(void* frame_buf, size_t* len)
+int VideoDevice::get_frame(void **frame_buf, size_t* len)
 {
+    v4l2_buffer queue_buf;
     CLEAR(queue_buf);
 
     queue_buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -246,7 +258,8 @@ int VideoDevice::get_frame(void* frame_buf, size_t* len)
         switch(errno)
         {
         case EAGAIN:
-            return 0;
+//            perror("dqbuf");
+            return -1;
         case EIO:
 
         default:
@@ -255,8 +268,9 @@ int VideoDevice::get_frame(void* frame_buf, size_t* len)
         }
     }
 
-    frame_buf = buffers[queue_buf.index].start;
+    *frame_buf = buffers[queue_buf.index].start;
     *len = buffers[queue_buf.index].length;
+    index = queue_buf.index;
 
     return 0;
 
@@ -264,13 +278,23 @@ int VideoDevice::get_frame(void* frame_buf, size_t* len)
 
 int VideoDevice::unget_frame()
 {
-    if(-1 == ioctl(fd, VIDIOC_QBUF, &queue_buf))
+    if(index != -1)
     {
-        emit display_error(tr("VIDIOC_QBUF: %1").arg(QString(strerror(errno))));
-        return -1;
-    }
-    return 0;
+        v4l2_buffer queue_buf;
+        CLEAR(queue_buf);
 
+        queue_buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        queue_buf.memory = V4L2_MEMORY_MMAP;
+        queue_buf.index = index;
+
+        if(-1 == ioctl(fd, VIDIOC_QBUF, &queue_buf))
+        {
+            emit display_error(tr("VIDIOC_QBUF: %1").arg(QString(strerror(errno))));
+            return -1;
+        }
+        return 0;
+    }
+    return -1;
 }
 
 
