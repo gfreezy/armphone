@@ -1,9 +1,6 @@
 #include <QtGui/QApplication>
 #include "mainwindow.h"
 
-#include "videodevice.h"
-#include "QMessageBox"
-
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
