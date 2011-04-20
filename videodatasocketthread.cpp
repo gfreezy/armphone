@@ -25,9 +25,9 @@ void VideoDataSocketThread::stop()
     delete vidsock;
 }
 
-void VideoDataSocketThread::setDisplayWidget()
+void VideoDataSocketThread::setDisplayWidget(VideoWidget *vw)
 {
-    vidsock->setDisplayWidget();
+    vidsock->setDisplayWidget(vw);
 }
 
 void VideoDataSocketThread::run()

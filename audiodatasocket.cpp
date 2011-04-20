@@ -16,6 +16,7 @@ AudioDataSocket::AudioDataSocket(const QString &aud, QObject *parent)
 
 void AudioDataSocket::ready_read()
 {
+    fprintf(stderr, "receving data\n");
     char buf[512];
     quint64 len = read(buf, sizeof(buf));
     auddev->write_data((short*)buf, len);
@@ -38,6 +39,7 @@ void AudioDataSocket::sendData()
         {
            break;
         }
+//        fprintf(stderr, "sending data\n");
     }
     stopped = true;
 }

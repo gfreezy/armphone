@@ -3,6 +3,7 @@
 
 #include "datasocket.h"
 #include "videodevice.h"
+#include "videowidget.h"
 
 class VideoDataSocket : public DataSocket
 {
@@ -11,7 +12,7 @@ public:
     explicit VideoDataSocket(const QString& dev, QObject* parent=0);
     virtual ~VideoDataSocket();
     virtual void sendData();
-    void setDisplayWidget();
+    void setDisplayWidget(VideoWidget* widget);
 
 private:
     void encode(char* buf1, quint64 len1, char* buf2, quint64* len2);
@@ -21,6 +22,7 @@ private:
 
     VideoDevice* viddev;
     const QString dev;
+    VideoWidget *vw;
 
 public slots:
     void ready_read();

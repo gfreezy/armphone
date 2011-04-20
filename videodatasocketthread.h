@@ -13,7 +13,7 @@ public:
     void stop();
     void setLocalPort(quint16 port);
     void connectToHost(QHostAddress& addr, quint16 port);
-    void setDisplayWidget();
+    void setDisplayWidget(VideoWidget* vw);
 
 private:
     const QString dev;

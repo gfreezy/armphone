@@ -14,8 +14,9 @@ VideoDataSocket::VideoDataSocket(const QString& dev, QObject *parent)
     }
 }
 
-void VideoDataSocket::setDisplayWidget()
+void VideoDataSocket::setDisplayWidget(VideoWidget *widget)
 {
+    this->vw = widget;
 
 }
 
@@ -24,16 +25,16 @@ void VideoDataSocket::ready_read()
     char recv_buf[1024];                //set receive buf size
     quint64 recv_len = read(recv_buf, sizeof(recv_buf));
 
-    char buf[1024];
-    quint64 len;
-    decode(recv_buf, recv_len, buf, &len);                      //decode
+//    char buf[1024];
+//    quint64 len;
+//    decode(recv_buf, recv_len, buf, &len);                      //decode
 
-    updateDisplayWidget(buf, len);
+    updateDisplayWidget(recv_buf, recv_len);
 }
 
 void VideoDataSocket::updateDisplayWidget(char *buf, quint64 len)
 {
-
+    vw->updateImage(buf, len);
 }
 
 void VideoDataSocket::sendData()

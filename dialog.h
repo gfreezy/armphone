@@ -1,13 +1,13 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef DIALOG_H
+#define DIALOG_H
 
-#include <QMainWindow>
+#include <QDialog>
 #include <QTcpSocket>
 #include "audiodatasocketthread.h"
 #include "videodatasocketthread.h"
-
+#include "videowidget.h"
 namespace Ui {
-    class MainWindow;
+    class Dialog;
 }
 
 class AudioDevice;
@@ -15,16 +15,16 @@ class UdpSocket;
 class NetPlayThread;
 class NetRecThread;
 class QTcpServer;
-class MainWindow : public QMainWindow
+class Dialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+    explicit Dialog(QWidget *parent = 0);
+    ~Dialog();
 
 private:
-    Ui::MainWindow *ui;
+    Ui::Dialog *ui;
     QTcpSocket* tcp_socket;
     QHostAddress remote_ip;
     bool started_talking;
@@ -32,6 +32,7 @@ private:
     const int listen_port;
     AudioDataSocketThread* audthread;
     VideoDataSocketThread* vidthread;
+    VideoWidget *vd_widget;
 
 private slots:
     void on_btn_disconnect_clicked();
@@ -41,4 +42,4 @@ private slots:
     void new_connection();
 };
 
-#endif // MAINWINDOW_H
+#endif // DIALOG_H

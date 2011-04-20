@@ -1,12 +1,12 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
+#include "dialog.h"
+#include "ui_dialog.h"
 #include <QDataStream>
 #include <QMessageBox>
 #include <QTcpServer>
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow),
+Dialog::Dialog(QWidget *parent) :
+    QDialog(parent),
+    ui(new Ui::Dialog),
     listen_port(1600)
 {
     ui->setupUi(this);
@@ -16,14 +16,18 @@ MainWindow::MainWindow(QWidget *parent) :
     tcp_server = new QTcpServer(this);
     tcp_server->listen(QHostAddress::Any, listen_port);
     connect(tcp_server, SIGNAL(newConnection()), this, SLOT(new_connection()));
+
+    vd_widget = new VideoWidget(ui->label_video);
+
 }
 
-MainWindow::~MainWindow()
+Dialog::~Dialog()
 {
+    delete vd_widget;
     delete ui;
 }
 
-void MainWindow::ready_to_read()
+void Dialog::ready_to_read()
 {
     QDataStream in(tcp_socket);
     char* data;
@@ -39,11 +43,11 @@ void MainWindow::ready_to_read()
         audthread->connectToHost(remote_ip, 1500);
         audthread->start();
 
-        vidthread = new VideoDataSocketThread(QString("/dev/video"));
-        vidthread->setLocalPort(1501);
-        vidthread->connectToHost(remote_ip, 1501);
-        vidthread->setDisplayWidget();
-        vidthread->start();
+//        vidthread = new VideoDataSocketThread(QString("/dev/video"));
+//        vidthread->setLocalPort(1501);
+//        vidthread->connectToHost(remote_ip, 1501);
+//        vidthread->setDisplayWidget(vd_widget);
+//        vidthread->start();
 
         started_talking = true;
 
@@ -65,11 +69,11 @@ void MainWindow::ready_to_read()
             audthread->connectToHost(remote_ip, 1500);
             audthread->start();
 
-            vidthread = new VideoDataSocketThread(QString("/dev/video"));
-            vidthread->setLocalPort(1501);
-            vidthread->connectToHost(remote_ip, 1501);
-            vidthread->setDisplayWidget();
-            vidthread->start();
+//            vidthread = new VideoDataSocketThread(QString("/dev/video"));
+//            vidthread->setLocalPort(1501);
+//            vidthread->connectToHost(remote_ip, 1501);
+//            vidthread->setDisplayWidget(vd_widget);
+//            vidthread->start();
 
             started_talking = true;
 
@@ -78,7 +82,7 @@ void MainWindow::ready_to_read()
             ui->remote_ip->setText(remote_ip.toString());
             ui->remote_ip->setEnabled(false);
             ui->status->setText("Talking ...");
-            ui->status->setEnabled(true);
+            ui->status->setVisible(true);
         }
         else if(res == QMessageBox::No)
         {
@@ -93,7 +97,7 @@ void MainWindow::ready_to_read()
 
 }
 
-void MainWindow::on_btn_dial_clicked()
+void Dialog::on_btn_dial_clicked()
 {
     tcp_socket = new QTcpSocket();
 
@@ -124,18 +128,21 @@ void MainWindow::on_btn_dial_clicked()
 
 }
 
-void MainWindow::on_btn_disconnect_clicked()
+void Dialog::on_btn_disconnect_clicked()
 {
     if(started_talking)
     {
         QDataStream out(tcp_socket);
         out << "stop";
 
+        tcp_socket->disconnectFromHost();
+        tcp_socket->waitForDisconnected();
+
         audthread->stop();
         delete audthread;
 
-        vidthread->stop();
-        delete vidthread;
+//        vidthread->stop();
+//        delete vidthread;
 
         started_talking = false;
     }
@@ -150,14 +157,14 @@ void MainWindow::on_btn_disconnect_clicked()
     ui->remote_ip->setEnabled(true);
 }
 
-void MainWindow::display_socket_error(QAbstractSocket::SocketError socketError)
+void Dialog::display_socket_error(QAbstractSocket::SocketError socketError)
 {
     QMessageBox::information(this, tr("Arm Phone"),
                              tr("The following error occurred: %1.")
                              .arg(tcp_socket->errorString()));
 }
 
-void MainWindow::new_connection()
+void Dialog::new_connection()
 {
     tcp_socket = tcp_server->nextPendingConnection();
     connect(tcp_socket, SIGNAL(readyRead()), this, SLOT(ready_to_read()));
