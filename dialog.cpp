@@ -9,6 +9,8 @@ Dialog::Dialog(QWidget *parent) :
     ui(new Ui::Dialog),
     listen_port(1600)
 {
+    audthread = NULL;
+    vidthread = NULL;
     ui->setupUi(this);
     ui->status->setVisible(false);
     started_talking = false;
@@ -38,9 +40,9 @@ void Dialog::ready_to_read()
     if(recv_data == "accept")
     {
 //        QMessageBox::information(this, tr("accept"), tr("accept"));
-        audthread = new AudioDataSocketThread(QString("/dev/dsp"));
-        audthread->setLocalPort(1500);
-        audthread->connectToHost(remote_ip, 1500);
+//        audthread = new AudioDataSocketThread(QString("/dev/dsp"));
+//        audthread->setLocalPort(1500);
+//        audthread->connectToHost(remote_ip, 1500);
         audthread->start();
 
 //        vidthread = new VideoDataSocketThread(QString("/dev/video"));
@@ -120,6 +122,9 @@ void Dialog::on_btn_dial_clicked()
         ui->status->setVisible(true);
 //        QMessageBox::information(this, tr("connection"),
 //                                 tr("connected to server"));
+        audthread = new AudioDataSocketThread(QString("/dev/dsp"));
+        audthread->setLocalPort(1500);
+        audthread->connectToHost(remote_ip, 1500);
     }
     else
     {
@@ -139,13 +144,16 @@ void Dialog::on_btn_disconnect_clicked()
         tcp_socket->waitForDisconnected();
 
         audthread->stop();
-        delete audthread;
+
 
 //        vidthread->stop();
-//        delete vidthread;
+
 
         started_talking = false;
     }
+    if(audthread != NULL)
+        delete audthread;
+//    delete vidthread;
 
     tcp_socket->abort();
     delete tcp_socket;

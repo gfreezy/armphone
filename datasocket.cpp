@@ -22,7 +22,7 @@ void DataSocket::stopSendingData()
     stop_sending = true;
     while(!stopped)
     {
-        sleep(0.01);
+        sleep(0.1);
     }
 }
 

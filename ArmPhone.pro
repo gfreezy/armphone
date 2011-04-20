@@ -37,7 +37,3 @@ HEADERS  += \
 
 FORMS    += \
     dialog.ui
-
-LIBS += -ljthread -ljrtp
-
-RESOURCES +=

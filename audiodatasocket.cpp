@@ -10,13 +10,15 @@ AudioDataSocket::AudioDataSocket(const QString &aud, QObject *parent)
     auddev = new AudioDevice(aud);
     if((-1 == auddev->open_device()) || (-1 == auddev->init_device()))
     {
+        perror("open device");
         exit(EXIT_FAILURE);
     }
+//    emit readyRead();
 }
 
 void AudioDataSocket::ready_read()
 {
-    fprintf(stderr, "receving data\n");
+    fprintf(stderr, "receving data from %d to %d\n", peerPort(), localPort());
     char buf[512];
     quint64 len = read(buf, sizeof(buf));
     auddev->write_data((short*)buf, len);
@@ -30,6 +32,7 @@ AudioDataSocket::~AudioDataSocket()
 
 void AudioDataSocket::sendData()
 {
+
     char buf[512];
     forever
     {
@@ -39,7 +42,7 @@ void AudioDataSocket::sendData()
         {
            break;
         }
-//        fprintf(stderr, "sending data\n");
+        fprintf(stderr, "send to port %d from %d", peerPort(), localPort());
     }
     stopped = true;
 }

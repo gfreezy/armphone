@@ -15,6 +15,7 @@ void VideoDataSocketThread::setLocalPort(quint16 port)
 void VideoDataSocketThread::connectToHost(QHostAddress &addr, quint16 port)
 {
     vidsock->create(localport);
+    vidsock->bind(QHostAddress::Any, port);
     vidsock->connectToHost(addr, port);
 }
 

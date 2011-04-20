@@ -9,7 +9,6 @@ AudioDataSocketThread::AudioDataSocketThread(const QString &aud, QObject *parent
 
 void AudioDataSocketThread::run()
 {
-
     audsock->sendData();                   //sending data forever
 }
 
@@ -20,6 +19,7 @@ void AudioDataSocketThread::setLocalPort(quint16 port)
 
 void AudioDataSocketThread::connectToHost(QHostAddress &addr, quint16 port)
 {
+    audsock->bind(QHostAddress::Any, port);
     audsock->create(localport);
     audsock->connectToHost(addr, port);
 }
