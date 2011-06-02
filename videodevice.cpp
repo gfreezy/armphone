@@ -1,5 +1,9 @@
 #include "videodevice.h"
 
+#define FORMAT V4L2_PIX_FMT_MJPEG
+#define WIDTH 320
+#define HEIGHT 240
+
 VideoDevice::VideoDevice(QString dev_name)
 {
     this->dev_name = dev_name;
@@ -7,7 +11,6 @@ VideoDevice::VideoDevice(QString dev_name)
     this->buffers = NULL;
     this->n_buffers = 0;
     this->index = -1;
-
 }
 
 int VideoDevice::open_device()
@@ -83,22 +86,22 @@ int VideoDevice::init_device()
             else
             {
                 emit display_error(tr("VIDIOC_S_CROP: %1").arg(QString(strerror(errno))));
-                return -1;
+                return 0;
             }
         }
     }
     else
     {
         emit display_error(tr("VIDIOC_CROPCAP: %1").arg(QString(strerror(errno))));
-        return -1;
+        return 0;
     }
 
     CLEAR(fmt);
 
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    fmt.fmt.pix.width = 640;
-    fmt.fmt.pix.height = 480;
-    fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
+    fmt.fmt.pix.width = WIDTH;
+    fmt.fmt.pix.height = HEIGHT;
+    fmt.fmt.pix.pixelformat = FORMAT;
     fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
 
     if(-1 == ioctl(fd, VIDIOC_S_FMT, &fmt))
@@ -255,10 +258,11 @@ int VideoDevice::get_frame(void **frame_buf, size_t* len)
 
     if(-1 == ioctl(fd, VIDIOC_DQBUF, &queue_buf))
     {
+        perror("dqbuf");
         switch(errno)
         {
         case EAGAIN:
-//            perror("dqbuf");
+            perror("dqbuf");
             return -1;
         case EIO:
 
@@ -267,6 +271,7 @@ int VideoDevice::get_frame(void **frame_buf, size_t* len)
             return -1;
         }
     }
+
 
     *frame_buf = buffers[queue_buf.index].start;
     *len = buffers[queue_buf.index].length;

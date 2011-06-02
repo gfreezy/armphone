@@ -2,6 +2,7 @@
 #define VIDEOWIDGET_H
 #include <QLabel>
 #include <QPixmap>
+#include <QImage>
 #include "videodevice.h"
 
 class VideoWidget
@@ -9,12 +10,11 @@ class VideoWidget
 public:
     VideoWidget(QLabel *label);
     ~VideoWidget();
-    void updateImage(char* buf, quint64 len);
+    void updateImage(uchar* buf, quint64 len);
 
 private:
     QLabel* label;
-    QPixmap* img;
-
+    QImage *img;
 
 };
 

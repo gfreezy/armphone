@@ -3,13 +3,13 @@
 VideoWidget::VideoWidget(QLabel *label)
 {
     this->label = label;
-    this->img = new QPixmap(320, 240);
+    this->img = new QImage(320, 240, QImage::Format_RGB888);
 }
 
-void VideoWidget::updateImage(char *buf, quint64 len)
+void VideoWidget::updateImage(uchar *buf, quint64 len)
 {
     img->loadFromData((uchar*)buf, len);
-    label->setPixmap(*img);
+    label->setPixmap(QPixmap::fromImage(*img));
     label->update();
 
 }

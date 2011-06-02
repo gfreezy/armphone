@@ -31,7 +31,8 @@ HEADERS  += \
     videodatasocket.h \
     videodatasocketthread.h \
     videowidget.h \
-    dialog.h
+    dialog.h \
+    huffman.h
 
 #INCLUDEPATH += gsm/inc
 

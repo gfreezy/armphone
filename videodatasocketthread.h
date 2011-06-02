@@ -11,13 +11,11 @@ public:
     explicit VideoDataSocketThread(const QString dev="/dev/video", QObject *parent = 0);
     void run();
     void stop();
-    void setLocalPort(quint16 port);
     void connectToHost(QHostAddress& addr, quint16 port);
     void setDisplayWidget(VideoWidget* vw);
 
 private:
     const QString dev;
-    quint16 localport;
     const QString aud;
     VideoDataSocket* vidsock;
 

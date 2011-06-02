@@ -4,19 +4,12 @@ VideoDataSocketThread::VideoDataSocketThread(const QString dev, QObject *parent)
     QThread(parent), dev(dev)
 {
     vidsock = new VideoDataSocket(dev);
-    localport = 6001;
-}
-
-void VideoDataSocketThread::setLocalPort(quint16 port)
-{
-    localport = port;
 }
 
 void VideoDataSocketThread::connectToHost(QHostAddress &addr, quint16 port)
 {
-    vidsock->create(localport);
-    vidsock->bind(QHostAddress::Any, port);
-    vidsock->connectToHost(addr, port);
+    vidsock->bindPort(port);
+    vidsock->setRemoteHost(addr, port);
 }
 
 void VideoDataSocketThread::stop()
