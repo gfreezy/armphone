@@ -31,7 +31,6 @@ void AudioDataSocket::ready_read()
         readDatagram(buf, len);
         auddev->write_data((short*)buf, len);
     }
-
 }
 
 AudioDataSocket::~AudioDataSocket()

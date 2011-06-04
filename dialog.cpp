@@ -10,7 +10,7 @@ Dialog::Dialog(QWidget *parent) :
     listen_port(1600)
 {
     audthread = NULL;
-    vidthread = NULL;
+//    vidthread = NULL;
     ui->setupUi(this);
     ui->status->setVisible(false);
     started_talking = false;
@@ -19,13 +19,13 @@ Dialog::Dialog(QWidget *parent) :
     tcp_server->listen(QHostAddress::Any, listen_port);
     connect(tcp_server, SIGNAL(newConnection()), this, SLOT(new_connection()));
 
-    vd_widget = new VideoWidget(ui->label_video);
+//    vd_widget = new VideoWidget(ui->label_video);
 
 }
 
 Dialog::~Dialog()
 {
-    delete vd_widget;
+//    delete vd_widget;
     delete ui;
 }
 
@@ -39,9 +39,9 @@ void Dialog::ready_to_read()
 //                              tr("received signal:\n %1").arg(recv_data));
     if(recv_data == "accept")
     {
-//        audthread->start();
+        audthread->start();
 
-        vidthread->start();
+//        vidthread->start();
 
         started_talking = true;
 
@@ -58,14 +58,14 @@ void Dialog::ready_to_read()
 
             remote_ip = tcp_socket->peerAddress();
 
-//            audthread = new AudioDataSocketThread(QString("/dev/dsp"));
-//            audthread->connectToHost(remote_ip, 1500);
-//            audthread->start();
+            audthread = new AudioDataSocketThread(QString("/dev/dsp"));
+            audthread->connectToHost(remote_ip, 1500);
+            audthread->start();
 
-            vidthread = new VideoDataSocketThread(QString("/dev/video1"));
-            vidthread->connectToHost(remote_ip, 1501);
-            vidthread->setDisplayWidget(vd_widget);
-            vidthread->start();
+//            vidthread = new VideoDataSocketThread(QString("/dev/video1"));
+//            vidthread->connectToHost(remote_ip, 1501);
+//            vidthread->setDisplayWidget(vd_widget);
+//            vidthread->start();
 
             started_talking = true;
 
@@ -113,12 +113,12 @@ void Dialog::on_btn_dial_clicked()
 //        QMessageBox::information(this, tr("connection"),
 //                                 tr("connected to server"));
 
-//        audthread = new AudioDataSocketThread(QString("/dev/dsp"));
-//        audthread->connectToHost(remote_ip, 1500);
+        audthread = new AudioDataSocketThread(QString("/dev/dsp"));
+        audthread->connectToHost(remote_ip, 1500);
 
-        vidthread = new VideoDataSocketThread(QString("/dev/video1"));
-        vidthread->connectToHost(remote_ip, 1501);
-        vidthread->setDisplayWidget(vd_widget);
+//        vidthread = new VideoDataSocketThread(QString("/dev/video1"));
+//        vidthread->connectToHost(remote_ip, 1501);
+//        vidthread->setDisplayWidget(vd_widget);
     }
     else
     {
@@ -137,8 +137,8 @@ void Dialog::on_btn_disconnect_clicked()
         tcp_socket->disconnectFromHost();
         tcp_socket->waitForDisconnected();
 
-//        audthread->stop();
-        vidthread->stop();
+        audthread->stop();
+//        vidthread->stop();
 
         started_talking = false;
     }
@@ -148,11 +148,11 @@ void Dialog::on_btn_disconnect_clicked()
         audthread = NULL;
     }
 
-    if(vidthread != NULL)
-    {
-        delete vidthread;
-        vidthread = NULL;
-    }
+//    if(vidthread != NULL)
+//    {
+//        delete vidthread;
+//        vidthread = NULL;
+//    }
 
     tcp_socket->abort();
     delete tcp_socket;
