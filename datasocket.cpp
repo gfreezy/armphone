@@ -7,9 +7,10 @@ DataSocket::DataSocket(QObject *parent) :
     stopped = false;
 }
 
-void DataSocket::create(quint16 port)
+void DataSocket::bindPort(quint16 port)
 {
     setLocalPort(port);
+    bind(QHostAddress::Any, port);
 }
 
 void DataSocket::destroy()
@@ -17,12 +18,23 @@ void DataSocket::destroy()
     abort();
 }
 
+void DataSocket::setRemoteHost(QHostAddress& addr, quint16 port)
+{
+    this->addr = new QHostAddress(addr);
+    this->port = port;
+}
+
 void DataSocket::stopSendingData()
 {
     stop_sending = true;
     while(!stopped)
     {
-        sleep(0.01);
+        sleep(1);
     }
+}
+
+DataSocket::~DataSocket()
+{
+    delete addr;
 }
 

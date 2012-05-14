@@ -10,21 +10,31 @@ TARGET = ArmPhone
 TEMPLATE = app
 
 
-SOURCES += main.cpp\
-        mainwindow.cpp \
+SOURCES +=\
     audiodevice.cpp \
     datasocket.cpp \
     audiodatasocket.cpp \
-    audiodatasocketthread.cpp
+    audiodatasocketthread.cpp \
+    videodevice.cpp \
+    videodatasocket.cpp \
+    videodatasocketthread.cpp \
+    videowidget.cpp \
+    dialog.cpp \
+    main.cpp
 
-HEADERS  += mainwindow.h \
+HEADERS  += \
     audiodevice.h \
     datasocket.h \
     audiodatasocket.h \
-    audiodatasocketthread.h
+    audiodatasocketthread.h \
+    videodevice.h \
+    videodatasocket.h \
+    videodatasocketthread.h \
+    videowidget.h \
+    dialog.h \
+    huffman.h
 
 #INCLUDEPATH += gsm/inc
 
-FORMS    += mainwindow.ui
-
-LIBS += -ljthread -ljrtp
+FORMS    += \
+    dialog.ui
