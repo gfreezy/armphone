@@ -3,31 +3,29 @@
 AudioDataSocketThread::AudioDataSocketThread(const QString &aud, QObject *parent) :
     QThread(parent), aud(aud)
 {
-    localport = 6000;
+    audsock = new AudioDataSocket(aud);
 }
 
 void AudioDataSocketThread::run()
 {
-
     audsock->sendData();                   //sending data forever
-}
-
-void AudioDataSocketThread::setLocalPort(quint16 port)
-{
-    localport = port;
 }
 
 void AudioDataSocketThread::connectToHost(QHostAddress &addr, quint16 port)
 {
-    audsock = new AudioDataSocket(aud, this);
-    audsock->create(localport);
-    audsock->connectToHost(addr, port);
+    audsock->bindPort(port);
+    audsock->setRemoteHost(addr, port);
 }
 
 void AudioDataSocketThread::stop()
 {
     audsock->stopSendingData();
     audsock->destroy();
+}
+
+AudioDataSocketThread::~AudioDataSocketThread()
+{
+
     delete audsock;
 }
 
