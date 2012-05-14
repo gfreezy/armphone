@@ -162,7 +162,7 @@ int AudioDevice::write_data(const short* buf, size_t size)
     {
         emit display_error(tr("SNDCTRL_DSP_GETOSPACE: %1").arg(QString(strerror(errno))));
 //            perror("SNDCTL_DSP_GETOSPACE");
-            return -1;
+//            return -1;
     }
 
     /*Note:
@@ -172,13 +172,21 @@ int AudioDevice::write_data(const short* buf, size_t size)
      * fragsize is the current fragment size in playback direction.
      * fragstotal is the number of buffer fragments allocated for playback.
      */
+    fprintf(stderr, "total frag %d, frag_size %d, free_space %d, fragments %d",
+            bi.fragstotal, bi.fragsize, bi.bytes, bi.fragments);
+
     frag_size = bi.fragsize;
     free_space = bi.bytes;
     if (free_space < s)
-            printf("play overrun\n"); // play speed too slow, so plz write slowly
+    {
+            fprintf(stderr, "play overrun\n"); // play speed too slow, so plz write slowly
+            return 0;
+    }
+
+
 
     res = write(fd, dblbuf, s);
-    printf ("write %d bytes\n", res);
+    fprintf (stderr, "write %d bytes\n", res);
     if (res == -1)
     {
         emit display_error(tr("write data: %1").arg(QString(strerror(errno))));

@@ -21,6 +21,11 @@ void AudioDataSocketThread::stop()
 {
     audsock->stopSendingData();
     audsock->destroy();
+}
+
+AudioDataSocketThread::~AudioDataSocketThread()
+{
+
     delete audsock;
 }
 

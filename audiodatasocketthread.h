@@ -9,6 +9,7 @@ class AudioDataSocketThread : public QThread
     Q_OBJECT
 public:
     explicit AudioDataSocketThread(const QString& aud="dev/dsp", QObject *parent = 0);
+    ~AudioDataSocketThread();
     void run();
     void stop();
     void connectToHost(QHostAddress& addr, quint16 port);

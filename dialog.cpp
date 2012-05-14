@@ -79,12 +79,23 @@ void Dialog::ready_to_read()
         else if(res == QMessageBox::No)
         {
             in << "reject";
-            QMessageBox::information(this, tr("Decline"), tr("Your request is declined"));
+            ui->btn_dial->setEnabled(true);
+            ui->btn_disconnect->setEnabled(false);
+            ui->status->setVisible(false);
+            ui->remote_ip->setEnabled(true);
+//            on_btn_disconnect_clicked();
         }
     }
     else if(recv_data == "stop")
     {
         on_btn_disconnect_clicked();
+        qDebug("stop");
+    }
+    else if(recv_data == "reject")
+    {
+        QMessageBox::information(this, tr("Decline"), tr("Your request is declined"));
+        on_btn_disconnect_clicked();
+        qDebug("reject");
     }
 
 }
@@ -129,14 +140,20 @@ void Dialog::on_btn_dial_clicked()
 
 void Dialog::on_btn_disconnect_clicked()
 {
-    if(started_talking)
+
+
+    if(tcp_socket->state() == QTcpSocket::ConnectedState)
     {
         QDataStream out(tcp_socket);
         out << "stop";
-
         tcp_socket->disconnectFromHost();
         tcp_socket->waitForDisconnected();
+        tcp_socket->abort();
+    }
 
+    delete tcp_socket;
+    if(started_talking)
+    {
         audthread->stop();
 //        vidthread->stop();
 
@@ -154,8 +171,7 @@ void Dialog::on_btn_disconnect_clicked()
 //        vidthread = NULL;
 //    }
 
-    tcp_socket->abort();
-    delete tcp_socket;
+
 
     ui->btn_dial->setEnabled(true);
     ui->btn_disconnect->setEnabled(false);
